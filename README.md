@@ -23,36 +23,35 @@
 
 ## Estructura del proyecto
 
+```
 practica_final_delgado_chaparro_ivanwilfrido/
-│
 ├── ejercicio1_descriptivo.py
 ├── ejercicio2_inferencia.py
 ├── ejercicio3_regresion_multiple.py
 ├── ejercicio4_series_temporales.py
 ├── Respuestas.md
-│
 ├── data/
 │   └── happiness_2015_2019.csv
-│
 └── output/
-├── ej1_descriptivo.csv
-├── ej1_outliers.txt
-├── ej1_histogramas.png
-├── ej1_boxplots.png
-├── ej1_heatmap_correlacion.png
-├── ej1_categoricas.png
-├── ej2_metricas_regresion.txt
-├── ej2_residuos.png
-├── ej2_coeficientes.png
-├── ej2_matriz_confusion.png
-├── ej3_coeficientes.txt
-├── ej3_metricas.txt
-├── ej3_predicciones.png
-├── ej4_serie_original.png
-├── ej4_descomposicion.png
-├── ej4_acf_pacf.png
-├── ej4_histograma_ruido.png
-└── ej4_analisis.txt
+    ├── ej1_descriptivo.csv
+    ├── ej1_outliers.txt
+    ├── ej1_histogramas.png
+    ├── ej1_boxplots.png
+    ├── ej1_heatmap_correlacion.png
+    ├── ej1_categoricas.png
+    ├── ej2_metricas_regresion.txt
+    ├── ej2_residuos.png
+    ├── ej2_coeficientes.png
+    ├── ej2_matriz_confusion.png
+    ├── ej3_coeficientes.txt
+    ├── ej3_metricas.txt
+    ├── ej3_predicciones.png
+    ├── ej4_serie_original.png
+    ├── ej4_descomposicion.png
+    ├── ej4_acf_pacf.png
+    ├── ej4_histograma_ruido.png
+    └── ej4_analisis.txt
+```
 
 ---
 
