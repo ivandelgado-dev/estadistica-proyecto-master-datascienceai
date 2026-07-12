@@ -1,27 +1,102 @@
-# World Happiness Report — Práctica Final Estadística
-**Autor:** Iván Wilfrido Delgado Chaparro  
-**Módulo:** Estadística para Data Science  
-**Máster:** Data Science & IA — Evolve Academy  
-**Dataset:** World Happiness Report (2015–2019) — Kaggle  
+# World Happiness Report — Práctica Final de Estadística
+Análisis estadístico completo sobre datos de felicidad por países, enmarcado en el módulo de Estadística para Data Science del Máster en Data Science & IA en Evolve Academy.
 
 ---
 
-## Dataset
+## Problema
+Los informes anuales del World Happiness Report vienen en archivos separados con columnas inconsistentes entre años. El objetivo es unificarlos, limpiarlos y aplicar sobre ellos el ciclo completo de análisis estadístico: desde la descripción de los datos hasta la predicción y el análisis temporal.
 
-| Característica | Valor |
+---
+
+## Datos
+- **Fuente:** [World Happiness Report — Kaggle](https://www.kaggle.com/datasets/unsdsn/world-happiness)
+- **Formato original:** 5 CSVs independientes (2015–2019), cada uno con nombres de columnas distintos
+- **Dataset final:** 782 filas · 170 países · 11 columnas
+- **Variable objetivo:** `Happiness_Score` (continua, rango 2.69–7.77)
+- **Variables categóricas:** `Region` (10 regiones geográficas) y `Happiness_Level` (Low / Medium / High, construida a partir del score)
+
+---
+
+## Enfoque
+
+### Preparación de datos
+Los 5 CSVs tenían nombres de columna distintos entre años y la variable `Region` solo existía en 2015 y 2016. El script de preparación:
+- Une los 5 archivos añadiendo columna `Year`
+- Homogeneiza nombres de columnas entre años
+- Construye el mapa `Country → Region` desde 2015/2016 y lo aplica a los años restantes con asignaciones manuales para los países nuevos
+- Crea `Happiness_Level` como segunda variable categórica
+- Imputa el único nulo del dataset (UAE 2018, columna `Corruption`) con la mediana
+
+### Ejercicio 1 — Análisis descriptivo
+Análisis completo con histogramas + KDE, detección de outliers por método IQR, frecuencias de variables categóricas y mapa de calor de correlaciones de Pearson.
+
+Se eligió IQR sobre Z-score porque las variables `Generosity` y `Corruption` tienen distribuciones asimétricas y el Z-score asume normalidad.
+
+### Ejercicio 2 — Inferencia con Scikit-Learn
+Regresión lineal para predecir `Happiness_Score` y regresión logística para clasificar países por nivel de felicidad. Preprocesamiento: `LabelEncoder` para `Region`, `StandardScaler` para todas las features, split 80/20 con `random_state=42`.
+
+### Ejercicio 3 — OLS desde cero con NumPy
+Implementación de la solución analítica β = (XᵀX)⁻¹ Xᵀy usando `numpy.linalg.lstsq` en lugar de invertir la matriz directamente, por estabilidad numérica. Sin sklearn.
+
+### Ejercicio 4 — Series temporales
+Descomposición aditiva con `period=365`, test ADF de estacionariedad sobre el residuo, análisis ACF/PACF y test de normalidad Jarque-Bera.
+
+---
+
+## Resultados
+
+### Ejercicio 1 — Análisis descriptivo
+| Variable | Correlación con Happiness_Score |
 |---|---|
-| Fuente | Kaggle — World Happiness Report |
-| Archivos originales | 5 CSVs (uno por año) |
-| Filas tras unión | 782 |
-| Países | 170 |
-| Rango temporal | 2015 – 2019 |
-| Variable objetivo | Happiness_Score (continua, rango 2.69–7.77) |
+| GDP_per_Capita | 0.789 |
+| Life_Expectancy | 0.742 |
+| Social_Support | 0.649 |
 
-**Columnas principales:** Country, Happiness_Score, GDP_per_Capita, Social_Support, Life_Expectancy, Freedom, Generosity, Corruption, Region, Happiness_Level, Year
+- 68 outliers en `Corruption` (8.7%) y 17 en `Generosity` (2.17%) — mantenidos por ser valores reales de países con características extremas
+- Ningún par de variables supera multicolinealidad de 0.9
+- `Sub-Saharan Africa` representa el 25% del dataset con los scores más bajos de forma consistente
+
+### Ejercicio 2 — Regresión lineal
+| Métrica | Valor |
+|---|---|
+| MAE | 0.4395 |
+| RMSE | 0.5728 |
+| R² | 0.7303 |
+
+El modelo explica el 73% de la variabilidad del score. `GDP_per_Capita` es el predictor con mayor peso (coeficiente 0.44).
+
+### Ejercicio 3 — OLS con NumPy
+| Parámetro | Valor real | Valor ajustado |
+|---|---|---|
+| β₀ | 5.0 | 4.8650 |
+| β₁ | 2.0 | 2.0636 |
+| β₂ | -1.0 | -1.1170 |
+| β₃ | 0.5 | 0.4385 |
+
+| Métrica | Valor |
+|---|---|
+| MAE | 1.1665 |
+| RMSE | 1.4612 |
+| R² | 0.6897 |
+
+### Ejercicio 4 — Series temporales
+| Estadístico del residuo | Valor |
+|---|---|
+| Media | 0.1271 |
+| Desviación típica | 3.2220 |
+| Jarque-Bera p-value | 0.5766 |
+| ADF p-value | 0.0000 |
+
+El residuo se comporta como ruido gaussiano: media ≈ 0, normalidad no rechazada (p > 0.05), estacionario (ADF p < 0.05), sin autocorrelación visible en ACF/PACF.
 
 ---
 
-## Estructura del proyecto
+## Stack
+Python · Pandas · NumPy · Scikit-Learn · Statsmodels · SciPy · Matplotlib · Seaborn · Kaggle
+
+---
+
+## Estructura del repo
 
 ```
 practica_final_delgado_chaparro_ivanwilfrido/
@@ -52,73 +127,3 @@ practica_final_delgado_chaparro_ivanwilfrido/
     ├── ej4_histograma_ruido.png
     └── ej4_analisis.txt
 ```
-
----
-
-## Preparación de datos
-
-Los 5 CSVs originales tenían nombres de columnas distintos entre años y la variable Region solo existía en 2015 y 2016. El script `preparar_dataset.py` (fuera del proyecto entregable) se encargó de:
-
-- Unir los 5 archivos añadiendo columna Year
-- Homogeneizar nombres de columnas entre años
-- Construir el mapa Country → Region desde 2015/2016
-- Añadir Happiness_Level como segunda variable categórica (Low/Medium/High)
-- Imputar el único nulo (UAE 2018, Corruption) con la mediana
-
----
-
-## Ejercicios
-
-### Ejercicio 1 — Análisis Estadístico Descriptivo
-Análisis completo sobre el dataset: distribuciones con KDE, detección de outliers con método IQR, análisis de frecuencias de variables categóricas y mapa de calor de correlaciones de Pearson.
-
-**Hallazgos clave:**
-- GDP_per_Capita correlaciona 0.79 con Happiness_Score
-- Corruption tiene 68 outliers (8.7%) — países con niveles extremos reales
-- Sub-Saharan Africa representa el 25% del dataset con los scores más bajos
-- Ningún par de variables supera multicolinealidad de 0.9
-
-### Ejercicio 2 — Inferencia con Scikit-Learn
-Regresión lineal para predecir Happiness_Score y regresión logística para clasificar países por nivel de felicidad.
-
-| Métrica | Valor |
-|---|---|
-| MAE | 0.4395 |
-| RMSE | 0.5728 |
-| R² | 0.7303 |
-
-Preprocesamiento: LabelEncoder para Region, StandardScaler, split 80/20 con random_state=42.
-
-### Ejercicio 3 — Regresión Lineal Múltiple en NumPy
-Implementación desde cero de OLS usando β = (XᵀX)⁻¹ Xᵀy con numpy.linalg.lstsq. Sin sklearn.
-
-| Parámetro | Valor real | Valor ajustado |
-|---|---|---|
-| β₀ | 5.0 | 4.8650 |
-| β₁ | 2.0 | 2.0636 |
-| β₂ | -1.0 | -1.1170 |
-| β₃ | 0.5 | 0.4385 |
-
-| Métrica | Valor |
-|---|---|
-| MAE | 1.1665 |
-| RMSE | 1.4612 |
-| R² | 0.6897 |
-
-### Ejercicio 4 — Series Temporales
-Descomposición aditiva con period=365, test ADF de estacionariedad y análisis del residuo.
-
-| Estadístico | Valor |
-|---|---|
-| Media residuo | 0.1271 |
-| Std residuo | 3.2220 |
-| Jarque-Bera p-value | 0.5766 |
-| ADF p-value | 0.0000 |
-
-El residuo se comporta como ruido gaussiano: media ≈ 0, sin autocorrelación en ACF/PACF, normalidad no rechazada.
-
----
-
-## Stack
-
-Python · Pandas · NumPy · Scikit-Learn · Statsmodels · SciPy · Matplotlib · Seaborn · Kaggle
